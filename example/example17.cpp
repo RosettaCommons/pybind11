@@ -11,6 +11,7 @@
 
 #include <pybind11/stl_binders.h>
 
+class B {};
 
 class A {
 public:
@@ -35,5 +36,9 @@ void init_ex17(py::module &m) {
 
 	pybind11::vector_binder<A>(m, "VectorA");
 
+	pybind11::vector_binder<B>(m, "VectorB");
+
 	pybind11::vector_binder< std::vector<A> >(m, "VectorVectorA");
+
+	pybind11::vector_binder< std::vector<std::string> >(m, "VectorString");
 }
