@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-from example import VectorInt, El, VectorEl, VectorVectorEl, VectorBool
+from example import VectorInt, El, VectorEl, VectorVectorEl, VectorBool, MapStringDouble
 
 v_int = VectorInt([0, 0])
 print(len(v_int))
@@ -46,3 +46,9 @@ for i in range(10):
     if vv_c[i] != (i % 2 == 0):
         print("Error!")
 print(vv_c)
+
+
+m = MapStringDouble()
+m['a'] = 1
+m['b'] = 2.5
+print(m)

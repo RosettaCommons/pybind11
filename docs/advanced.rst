@@ -268,7 +268,7 @@ helper class that is defined as follows:
 
 The macro :func:`PYBIND11_OVERLOAD_PURE` should be used for pure virtual
 functions, and :func:`PYBIND11_OVERLOAD` should be used for functions which have
-a default implementation. 
+a default implementation.
 
 There are also two alternate macros :func:`PYBIND11_OVERLOAD_PURE_NAME` and
 :func:`PYBIND11_OVERLOAD_NAME` which take a string-valued name argument
@@ -791,6 +791,12 @@ exceptions:
 |                                      | indicate out of bounds       |
 |                                      | accesses in ``__getitem__``, |
 |                                      | ``__setitem__``, etc.)       |
++--------------------------------------+------------------------------+
+| :class:`pybind11::key_error`         | ``KeyError`` (used to        |
+|                                      | indicate out of bounds       |
+|                                      | accesses in ``__getitem__``, |
+|                                      | ``__setitem__`` in dict-like |
+|                                      | objects, etc.                |
 +--------------------------------------+------------------------------+
 | :class:`pybind11::value_error`       | ``ValueError`` (used to      |
 |                                      | indicate wrong value passed  |

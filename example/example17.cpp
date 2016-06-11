@@ -28,10 +28,14 @@ void init_ex17(py::module &m) {
 	pybind11::class_<El>(m, "El")
 		.def(pybind11::init<int>());
 
+
 	pybind11::bind_vector<unsigned int>(m, "VectorInt");
 	pybind11::bind_vector<bool>(m, "VectorBool");
 
 	pybind11::bind_vector<El>(m, "VectorEl");
 
     pybind11::bind_vector<std::vector<El>>(m, "VectorVectorEl");
+
+
+	pybind11::bind_map<std::string, double>(m, "MapStringDouble");
 }
