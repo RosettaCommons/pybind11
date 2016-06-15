@@ -424,13 +424,18 @@ pybind11::class_<std::map<Key, T, Compare, Allocator>, holder_type> bind_map(pyb
 
     cl.def("__getitem__",
 		   [](Map &m, const KeyType &k) -> MappedType {
-			   if (m.count(k)) return m[k];
+			   if (m.count(k)) return m.at(k);
 			   else throw pybind11::key_error(); // it is not always possible to convert key to string // pybind11::key_error(k)
    });
 
     cl.def("__setitem__",
 		   [](Map &m, const KeyType &k, const MappedType &v) {
-			   m[k] = v;
+			   auto r = m.insert( std::make_pair(k, v) ); // We can't use m[k] = v; because value type might not be default constructable
+			   if(!r.second) { // value type might be const so the only way to insert it is to errase it first...
+				   m.erase(r.first);
+				   m.insert( std::make_pair(k, v) );
+			   }
+
 	});
 
     cl.def("__delitem__",
