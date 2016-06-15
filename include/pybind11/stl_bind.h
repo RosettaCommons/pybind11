@@ -360,6 +360,10 @@ pybind11::class_<std::vector<T, Allocator>, holder_type> bind_vector(pybind11::m
 //
 
 NAMESPACE_BEGIN(detail)
+
+/* Fallback functions */
+template <typename, typename, typename... Args> void map_if_insertion_operator(const Args&...) { }
+
 template <typename Map, typename Class_> auto map_if_insertion_operator(Class_ &cl, std::string const &name)
 -> decltype(std::declval<std::ostream&>() << std::declval<typename Map::key_type>() << std::declval<typename Map::mapped_type>(), void()) {
     //using size_type = typename Map::size_type;
