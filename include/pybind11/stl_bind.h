@@ -425,7 +425,7 @@ pybind11::class_<std::map<Key, T, Compare, Allocator>, holder_type> bind_map(pyb
     cl.def("__getitem__",
 		   [](Map &m, const KeyType &k) -> MappedType {
 			   if (m.count(k)) return m[k];
-			   else throw pybind11::key_error(k);
+			   else throw pybind11::key_error(); // it is not always possible to convert key to string // pybind11::key_error(k)
    });
 
     cl.def("__setitem__",
@@ -436,7 +436,7 @@ pybind11::class_<std::map<Key, T, Compare, Allocator>, holder_type> bind_map(pyb
     cl.def("__delitem__",
         [](Map &m, const KeyType &k) {
 			   if (m.count(k)) m.erase(k);
-			   else throw pybind11::key_error(k);
+			   else throw pybind11::key_error(); // it is not always possible to convert key to string // pybind11::key_error(k)
     });
 
     cl.def("__len__", &Map::size);
