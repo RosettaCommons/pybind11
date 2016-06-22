@@ -10,11 +10,12 @@ To release a new version of pybind11:
     - ``git push --tags``.
     - ``python setup.py sdist upload``.
     - ``python setup.py bdist_wheel upload``.
-- Update conda-forge (https://github.com/conda-forge/pybind11-feedstock)
-    - change version number in ``meta.yml``
+- Update conda-forge (https://github.com/conda-forge/pybind11-feedstock) via PR
+    - change version number in ``recipe/meta.yml``
     - update checksum to match the one computed by pypi
 - Get back to work
     - Update ``_version.py`` (add 'dev' and increment minor).
+    - Update version in ``docs/conf.py``
     - Update version macros in ``include/pybind11/common.h``
     - ``git add`` and ``git commit``.
       ``git push``

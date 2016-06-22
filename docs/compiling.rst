@@ -7,9 +7,9 @@ Building with setuptools
 For projects on PyPI, building with setuptools is the way to go. Sylvain Corlay
 has kindly provided an example project which shows how to set up everything,
 including automatic generation of documentation using Sphinx. Please refer to
-the [pbtest]_ repository.
+the [python_example]_ repository.
 
-.. [pbtest] https://github.com/pybind/pbtest
+.. [python_example] https://github.com/pybind/python_example
 
 Building with cppimport
 ========================
@@ -50,4 +50,4 @@ installation can be specified by setting ``PYTHON_EXECUTABLE``.
 A working sample project, including a way to invoke CMake from :file:`setup.py` for
 PyPI integration, can be found in the [cmake_example]_  repository.
 
-.. [cmake_example] https://github.com/dean0x7d/pybind11_cmake_example
+.. [cmake_example] https://github.com/pybind/cmake_example

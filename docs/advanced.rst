@@ -139,8 +139,19 @@ its return value upon execution.
         };
     }
 
+This example demonstrates using python named parameters in C++ callbacks which
+requires using ``py::cpp_function`` as a wrapper. Usage is similar to defining
+methods of classes:
+
+.. code-block:: cpp
+
+    py::cpp_function func_cpp() {
+        return py::cpp_function([](int i) { return i+1; },
+           py::arg("number"));
+    }
+
 After including the extra header file :file:`pybind11/functional.h`, it is almost
-trivial to generate binding code for both of these functions.
+trivial to generate binding code for all of these functions.
 
 .. code-block:: cpp
 
@@ -151,13 +162,14 @@ trivial to generate binding code for both of these functions.
 
         m.def("func_arg", &func_arg);
         m.def("func_ret", &func_ret);
+        m.def("func_cpp", &func_cpp);
 
         return m.ptr();
     }
 
 The following interactive session shows how to call them from Python.
 
-.. code-block:: python
+.. code-block:: pycon
 
     $ python
     >>> import example
@@ -169,7 +181,9 @@ The following interactive session shows how to call them from Python.
     >>> square_plus_1 = example.func_ret(square)
     >>> square_plus_1(4)
     17L
-    >>>
+    >>> plus_1 = func_cpp()
+    >>> plus_1(number=43)
+    44L
 
 .. note::
 
@@ -304,7 +318,7 @@ by pybind11. Following this, we are able to define a constructor as usual.
 The Python session below shows how to override ``Animal::go`` and invoke it via
 a virtual method call.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> from example import *
     >>> d = Dog()
@@ -318,20 +332,28 @@ a virtual method call.
     >>> call_go(c)
     u'meow! meow! meow! '
 
-.. warning::
-
-    The :func:`PYBIND11_OVERLOAD_*` calls are all just macros, which means that
-    they can get confused by commas in a template argument such as
-    ``PYBIND11_OVERLOAD(MyReturnValue<T1, T2>, myFunc)``. In this case, the
-    preprocessor assumes that the comma indicates the beginnning of the next
-    parameter. Use a ``typedef`` to bind the template to another name and use
-    it in the macro to avoid this problem.
+Please take a look at the :ref:`macro_notes` before using this feature.
 
 .. seealso::
 
     The file :file:`example/example12.cpp` contains a complete example that
     demonstrates how to override virtual functions using pybind11 in more
     detail.
+
+
+.. _macro_notes:
+
+General notes regarding convenience macros
+==========================================
+
+pybind11 provides a few convenience macros such as
+:func:`PYBIND11_MAKE_OPAQUE` and :func:`PYBIND11_DECLARE_HOLDER_TYPE`, and
+``PYBIND11_OVERLOAD_*``. Since these are "just" macros that are evaluated
+in the preprocessor (which has no concept of types), they *will* get confused
+by commas in a template argument such as ``PYBIND11_OVERLOAD(MyReturnValue<T1,
+T2>, myFunc)``. In this case, the preprocessor assumes that the comma indicates
+the beginnning of the next parameter. Use a ``typedef`` to bind the template to
+another name and use it in the macro to avoid this problem.
 
 
 Global Interpreter Lock (GIL)
@@ -439,7 +461,9 @@ functions. The default policy is :enum:`return_value_policy::automatic`.
 |                                                  | See below for a description of what all of these different policies do.    |
 +--------------------------------------------------+----------------------------------------------------------------------------+
 | :enum:`return_value_policy::automatic_reference` | As above, but use policy :enum:`return_value_policy::reference` when the   |
-|                                                  | return value is a pointer. You probably won't need to use this.            |
+|                                                  | return value is a pointer. This is the default conversion policy for       |
+|                                                  | function arguments when calling Python functions manually from C++ code    |
+|                                                  | (i.e. via handle::operator()). You probably won't need to use this.        |
 +--------------------------------------------------+----------------------------------------------------------------------------+
 | :enum:`return_value_policy::take_ownership`      | Reference an existing object (i.e. do not create a new copy) and take      |
 |                                                  | ownership. Python will call the destructor and delete operator when the    |
@@ -585,6 +609,26 @@ Python side:
 
     py::implicitly_convertible<A, B>();
 
+.. _static_properties:
+
+Static properties
+=================
+
+The section on :ref:`properties` discussed the creation of instance properties
+that are implemented in terms of C++ getters and setters.
+
+Static properties can also be created in a similar way to expose getters and
+setters of static class attributes. It is important to note that the implicit
+``self`` argument also exists in this case and is used to pass the Python
+``type`` subclass instance. This parameter will often not be needed by the C++
+side, and the following example illustrates how to instantiate a lambda getter
+function that ignores it:
+
+.. code-block:: cpp
+
+    py::class_<Foo>(m, "Foo")
+        .def_property_readonly_static("foo", [](py::object /* self */) { return Foo(); });
+
 Unique pointers
 ===============
 
@@ -721,6 +765,9 @@ There are two ways to resolve this issue:
 
     class Child : public std::enable_shared_from_this<Child> { };
 
+
+Please take a look at the :ref:`macro_notes` before using this feature.
+
 .. seealso::
 
     The file :file:`example/example8.cpp` contains a complete example that
@@ -840,7 +887,7 @@ Suppose we bind the following function
 
 and call it from Python, the following happens:
 
-.. code-block:: python
+.. code-block:: pycon
 
    >>> v = [5, 6]
    >>> append_1(v)
@@ -869,7 +916,7 @@ functions:
 In this case, properties can be read and written in their entirety. However, an
 ``append`` operaton involving such a list type has no effect:
 
-.. code-block:: python
+.. code-block:: pycon
 
    >>> m = MyClass()
    >>> m.contents = [5, 6]
@@ -909,6 +956,7 @@ with a name in Python, and to define a set of available operations:
         }, py::keep_alive<0, 1>()) /* Keep vector alive while iterator is used */
         // ....
 
+Please take a look at the :ref:`macro_notes` before using this feature.
 
 .. seealso::
 
@@ -1150,7 +1198,7 @@ entirely on the C++ side and can be crunched down into a tight, optimized loop
 by the compiler. The result is returned as a NumPy array of type
 ``numpy.dtype.float64``.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> x = np.array([[1, 3],[5, 7]])
     >>> y = np.array([[2, 4],[6, 8]])
@@ -1322,7 +1370,7 @@ Another aspect worth highlighting is that the "preview" of the default argument
 in the function signature is generated using the object's ``__repr__`` method.
 If not available, the signature may not be very helpful, e.g.:
 
-.. code-block:: python
+.. code-block:: pycon
 
     FUNCTIONS
     ...
@@ -1527,7 +1575,7 @@ Generating documentation using Sphinx
 
 Sphinx [#f4]_ has the ability to inspect the signatures and documentation
 strings in pybind11-based extension modules to automatically generate beautiful
-documentation in a variety formats. The pbtest repository [#f5]_ contains a
+documentation in a variety formats. The python_example repository [#f5]_ contains a
 simple example repository which uses this approach.
 
 There are two potential gotchas when using this approach: first, make sure that
@@ -1555,4 +1603,4 @@ work, it is important that all lines are indented consistently, i.e.:
     )mydelimiter");
 
 .. [#f4] http://www.sphinx-doc.org
-.. [#f5] http://github.com/pybind/pbtest
+.. [#f5] http://github.com/pybind/python_example
